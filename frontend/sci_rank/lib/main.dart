@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sci_rank/analysisResultPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +27,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
+  TextEditingController _myController = TextEditingController();
   @override
   Widget build(BuildContext context) {
    return Scaffold(
@@ -39,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextField(
+              controller: _myController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Enter DOI',
@@ -46,7 +48,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
                 onPressed: () {
-
+                  String doi = _myController.text;
+                  if (doi != "") {
+                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => AnalysisResultPage(doi)));
+                    });
+                  }
                 },
                 child: Text("Get Analysis Results")
             )
