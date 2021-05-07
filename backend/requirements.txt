@@ -1,8 +1,8 @@
-click==7.1.2
-joblib==1.0.1
-nltk==3.6.1
-numpy==1.20.2
-pdfminer==20191125
-pycryptodome==3.10.1
-regex==2021.4.4
-tqdm==4.60.0
+certifi==2020.6.20
+chardet==3.0.4
+chromedriver-py==90.0.4430.24
+idna==2.10
+PyYAML==5.4.1
+requests==2.24.0
+selenium==3.141.0
+urllib3==1.25.9
