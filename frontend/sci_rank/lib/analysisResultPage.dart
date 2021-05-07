@@ -16,9 +16,8 @@ class _AnalysisResultPageState extends State<AnalysisResultPage> {
         title: Text("Analyis Results"),
       ),
       body: Container(
-
+        child: Text(_doi),
       ),
     );
   }
-
 }
