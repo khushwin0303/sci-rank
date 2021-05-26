@@ -4,6 +4,7 @@ This file is responsible for interacting with the front-end and other elements o
 
 author: Daniel Broderick"""
 
+import numpy as np
 import io
 import requests
 import nltk
@@ -12,10 +13,11 @@ import pdfplumber
 
 # from scihub import SciHub
 nltk.download("punkt")
+nltk.download('vader_lexicon')
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from serpapi import GoogleSearch
 
 api_key = "d3794c0470001e53e2ca4209bfd14dcd8f5ca707e2c63879263ee0e5ab8023b4"
-
 
 from flask import Flask, jsonify, request
 
@@ -24,6 +26,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
+    # displayed when you view the base url http://danjoe4.pythonanywhere.com/
     return """Here's a brief api description:
     {"doi" :"10.1242/jeb.02155"} is the format for POST requests.json
     
@@ -31,8 +34,12 @@ def index():
 
     a dictionary is returned in the form 
     {"abstract" : "text", 
-    "date" : "not implemented yet",
-    "n_value" : "not implement yet"}
+    "date" : "7 February 2006",
+    "sentiment" : "The overall sentiment of this article was {positve/negative}"}
+
+    note that date may return "This may be the wrong date: 7 February 2006" 
+    depending on the certainty
+
     """
 
 
@@ -47,19 +54,12 @@ def store_doi():
         # gather our info
         info = {}
         info["abstract"] = get_abstract(pdf_text[1])  # only requires the first page
-        # info["date"] = get_date(pdf_text[1])
+        info["date"] = get_date(pdf_text[1])
 
-        # pdf_tokens = tokenize(pdf_text)  # turn the string into a list of strings
-        # info["n_value"] = get_nvalue(pdf_tokens)
+        pdf_tokens = full_sentence_tokenize(pdf_text)
+        info["sentiment"] = get_sentiment(pdf_tokens)
 
-        return info
-
-
-@app.route("/message", methods=["GET"])
-def message():
-    posted_data = request.get_json()
-    name = posted_data["name"]
-    return jsonify(" Hope you are having a good time " + name + "!!!")
+        return info 
 
 
 def retrieve_paper(doi):
@@ -89,13 +89,13 @@ def get_text(url):
     return fulltext
 
 
-def tokenize(text):
-    # turn the text into a useable format
-    sentences = []
+def full_sentence_tokenize(text):
+    # concats the pages and creates a list of sentence strings
+    full_text = ""
     for page in text.values():  # break into sentences
-        sentences += nltk.tokenize.sent_tokenize(page)
-    sentences = [nltk.tokenize.word_tokenize(sent) for sent in sentences]  # words
-    # sentences = [nltk.tokenize.pos_tag(sent) for sent in sentences]  # part of speech tagging
+        full_text += page
+    
+    sentences = nltk.tokenize.sent_tokenize(full_text)
     print(sentences)
     return sentences
 
@@ -145,15 +145,64 @@ def get_abstract(first_page):
 
 def get_date(first_page):
     # gets the papers date
-    nltk.tokenize.word_tokenize(first_page)
-    return ""
+    text = nltk.tokenize.word_tokenize(first_page)
+    text = nltk.text.Text(text)  # a usable text object
+
+    print(text[0:])
+    try:
+        start = text.index("Accepted")
+    except ValueError:
+        return "No date found"
+
+    clipped_date = text[start + 1 : start + 4]
+
+    months = ["january", "february", "march", "april", "may", "june", "july", "august",
+        "september", "october", "november", "december"]
+    # express uncertainly if the month or year are not the expected format
+    if clipped_date[1].lower() not in months or len(clipped_date[2]) != 4:
+        out = " ".join([str(word) for word in clipped_date])
+        return "This may be the wrong date: " + out
+
+    out = " ".join([str(word) for word in clipped_date])
+    return out
 
 
-def get_nvalue(text):
-    # we basically look for "n=" and do a word frequency analysis for the
-    # following value; assumes the most frequent value is correct
+def get_sentiment(text):
+    sid = SentimentIntensityAnalyzer()
+    scores = [] # a list of the sentiment scores
+    for sentence in text:
+        score_dict = sid.polarity_scores(sentence)
+        scores.append(score_dict)
 
-    return ""
+    # extract the compound (combined negativity/positivity/neutrality) scores
+    compound_scores = [score["compound"] for score in scores]
+    # find their mean
+    mean = np.mean(compound_scores)
+
+    # ratings dict
+    ratings = {'1': "very positive", '2': "mostly positive", '3': "slightly positive",
+                '4': "neutral", '5': "slightly negative", '6': "mostly negative", '7': "very negative"}
+    
+    # turn our numberical rating into a description
+    if mean > .11: 
+        rating = 1
+    elif mean > .08:
+        rating = 2
+    elif mean > .05:
+        rating = 3
+    elif mean < -.11: 
+        rating = 5
+    elif mean < -.08:
+        rating = 6
+    elif mean < -.05:
+        rating = 7
+    else: 
+        rating = 4
+    
+    rating_txt = ratings[str(rating)]
+    out = f"The overall sentiment of this article was {rating_txt}"
+    return out
+
 
 
 if __name__ == "__main__":
@@ -163,5 +212,6 @@ if __name__ == "__main__":
     # print(paper)
     # main()
     # tokenize({"1": "here i am how are you. I am good. \n", "2": "n = 5"})
-    # get_date([['here', 'i', 'am', 'how', 'are', 'you', '.'], ['I', 'am', 'good', '.'], ['n', '=', '5']])
     # get_abstract("her i am how are you Abstract i am cool Introduction here we are")
+    # get_date("here i am how are you. Some title stuff. Accepted 7 February 2006")
+    #get_sentiment(["I am very happy.", "I am kind of sad.", "This is my presentation"])
