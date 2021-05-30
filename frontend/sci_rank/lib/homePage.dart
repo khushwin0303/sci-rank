@@ -17,39 +17,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _myController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter DOI',
+      body: Center(
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextField(
+                controller: _myController,
+                decoration: InputDecoration(
+                  labelText: 'Paste or Type DOI',
+                  border: OutlineInputBorder(
+                  ),
+                  hintText: 'DOI',
+                ),
               ),
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  String doi = _myController.text;
-                  if (doi != "") {
-                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => AnalysisResultPage(doi)));
-                    });
-                  }
-                },
-                child: Text("Get Analysis Results")
-            ),
-            Text("OR", style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),),
-            ElevatedButton(
-              onPressed: () {
-              },
-              child: Text("Select a PDF file from your device"),
-            )
-
-          ],
-        ),
-      ),
+              ElevatedButton(
+                  onPressed: () {
+                    String doi = _myController.text;
+                    if (doi != "") {
+                      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => AnalysisResultPage(doi)));
+                      });
+                    }
+                  },
+                  child: Text("Get Analysis Results")
+              ),
+            ],
+          ),
+        )
+      )
     );
   }
 }
