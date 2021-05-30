@@ -7,6 +7,7 @@ import 'pdf_functions.dart';
 import 'PaperDetails.dart';
 String url = "https://danjoe4.pythonanywhere.com/doi";
 
+/// Function which collect the data
 Future<PaperDetails> _getPaperDetails(String doi) async {
   Map<String, String> body = <String, String> {
     'doi' : doi
@@ -27,13 +28,16 @@ Future<PaperDetails> _getPaperDetails(String doi) async {
 
 
 
-
+/// Class that will display the result
+/// It is stateless since its state will be displayed
 class AnalysisResultPage extends StatefulWidget {
   final String _doi;
   _AnalysisResultPageState createState() => _AnalysisResultPageState();
   AnalysisResultPage(this._doi);
 }
 
+/// returns a CircularProgressIndicator while data is being fetched
+/// When fetching is complete else return the fetched data or error message
 class _AnalysisResultPageState extends State<AnalysisResultPage> {
   String _doi;
   PaperDetails _paperDetails;
@@ -74,6 +78,7 @@ class _AnalysisResultPageState extends State<AnalysisResultPage> {
     else return Center(child: CircularProgressIndicator());
   }
 
+
   Widget returnPaperDetails(PaperDetails paperDetails) {
     _paperDetails = paperDetails;
     String _abstract = paperDetails.abstract;
@@ -91,6 +96,7 @@ class _AnalysisResultPageState extends State<AnalysisResultPage> {
     );
   }
 
+  /// create suitable UI for displaying data
   Widget createCard(String text, String title) {
     return Card(
         child: Column(
@@ -103,6 +109,7 @@ class _AnalysisResultPageState extends State<AnalysisResultPage> {
     );
   }
 
+  /// Dialog button which allows the user to generate required pdf file
   Future<void> _returnGenPDFDialog(BuildContext context) async{
     final myController = TextEditingController();
     return await showDialog(
