@@ -3,10 +3,8 @@
 SCI-RANK- CS250 project
 
 ## Getting Started
+This project is part of the front-end of Sci-Rank, made from the flutter framework. It is designed for both Android and IOS
 
-This project is part of the front-end of Sci-Rank.
 
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## If you want to test this program, please download Android Studio, and a suitable emulator
+More info can be found here: https://flutter.dev/docs/get-started/editor
