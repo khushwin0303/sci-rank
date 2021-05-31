@@ -96,7 +96,7 @@ def full_sentence_tokenize(text):
         full_text += page
     
     sentences = nltk.tokenize.sent_tokenize(full_text)
-    print(sentences)
+    #print(sentences)
     return sentences
 
 
@@ -107,11 +107,13 @@ def get_abstract(first_page):
     # searches for the start index, indicated by the "abstract or "summary" title
     # These are case sensitive, this increases accuracy because headers should always
     # be capitalized
+    print(text[0:])
+
     start = None
     try:
         for x in ["Summary", "Abstract"]:
-            start = text.index(x)
-            if start != None:
+            if x in text:
+                start = text.index(x)
                 break
     except ValueError:
         pass
@@ -127,6 +129,7 @@ def get_abstract(first_page):
         for x in ["Introduction", "Background"]:
             end = text.index(x)
             if end != None:
+                print("heredabfoivcberdsohvbaoudsvbuodfbcv")
                 break
     except ValueError:
         pass
@@ -136,9 +139,9 @@ def get_abstract(first_page):
             return "No abstract found"
 
     # use our indices to extract the abstract body
-    print(text[start + 1 : end])
+    #print(text[start + 1 : end])
     clipped_abstract = " ".join([str(word) for word in text[start + 1 : end]])
-    print(clipped_abstract)
+    #print(clipped_abstract)
 
     return clipped_abstract
 
@@ -148,7 +151,7 @@ def get_date(first_page):
     text = nltk.tokenize.word_tokenize(first_page)
     text = nltk.text.Text(text)  # a usable text object
 
-    print(text[0:])
+    #print(text[0:])
     try:
         start = text.index("Accepted")
     except ValueError:
